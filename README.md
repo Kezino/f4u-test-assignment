@@ -1,3 +1,6 @@
+Forex4you Test Assignment
+=========================
+
 Let's say, in our system we have two models "client" and "shipping address".
 Let's assume that we already have some existing (registered) clients in our database.
 Let's do this simple and assume that our clients have only two properties firstname and lastname.

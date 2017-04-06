@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+CONTAINERS_PREFIX=f4u
+
+cd $(dirname $0)/../ \
+    && docker-compose -p $CONTAINERS_PREFIX kill \
+    && yes | docker-compose -p $CONTAINERS_PREFIX rm>/dev/null

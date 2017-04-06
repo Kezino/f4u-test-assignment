@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+CONTAINERS_PREFIX=f4u
+
+$(dirname $0)/docker-stop && \
+    cd $(dirname $0)/../ \
+    && docker-compose -p $CONTAINERS_PREFIX build \
+    && docker-compose -p $CONTAINERS_PREFIX up -d; \
+    cd ->/dev/null

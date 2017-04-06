@@ -1,0 +1,80 @@
+version: '3'
+
+services:
+    app:
+        build:
+            context: ./app
+            args:
+                COMPOSER_VERSION:   "1.2.0"
+        container_name: f4u-app
+        volumes:
+            - "../:/var/www/f4u-test"
+        links:
+            - mysql:db.f4u
+        env_file:
+            - "./app/php-fpm.env"
+        depends_on:
+            - mysql
+        network_mode: "bridge"
+
+    nginx:
+        build: ./nginx
+        container_name: f4u-nginx
+        links:
+            - app:app.f4u
+        volumes_from:
+            - app
+        volumes:
+            - "./nginx/sites:/etc/nginx/sites-enabled:rw"
+            - "./nginx/logs:/var/logs/nginx:rw"
+        environment:
+           - NGINX_HOST=f4u-test.docker
+           - VIRTUAL_HOST=f4u-test.docker
+        ports:
+            - 80
+            - 443
+        depends_on:
+            - app
+            - nginx_proxy
+        network_mode: "bridge"
+
+    nginx_proxy:
+        image: jwilder/nginx-proxy
+        container_name: f4u-nginx-proxy
+        volumes:
+            - "./nginx/ssl:/etc/nginx/certs"
+            - "./nginx-proxy/conf/proxy.conf:/etc/nginx/proxy.conf:ro"
+            - "/var/run/docker.sock:/tmp/docker.sock:ro"
+        ports:
+            - 80:80
+            - 443:443
+        network_mode: "bridge"
+
+    mysql:
+        image: mysql:5.6
+        container_name: f4u-mysql
+        command: "/localdb-run.sh"
+        env_file:
+            - "./mysql/mysql.env"
+        volumes:
+            - "./mysql/.db:/var/lib/mysql:rw"
+            - "./mysql/run.sh:/localdb-run.sh"
+            - "./mysql/initdb.d:/docker-entrypoint-initdb.d"
+            - "./mysql/fixtures.d:/docker-entrypoint-fixtures.d"
+        network_mode: "bridge"
+
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        container_name: f4u-pma
+        links:
+            - mysql:db
+        ports:
+            - 80
+        depends_on:
+            - mysql
+            - nginx_proxy
+        environment:
+            - PMA_PORT=3306
+            - PMA_ABSOLUTE_URI=https://pma.f4u-test.docker
+            - VIRTUAL_HOST=pma.f4u-test.docker
+        network_mode: "bridge"

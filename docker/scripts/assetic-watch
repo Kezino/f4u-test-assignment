@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+docker exec -it f4u-app bash -c "gosu symfony rm -rf var/cache/* && php bin/console assetic:watch --env=dev"

@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+COMPOSER_PHAR=composer.phar
+if [ ! -f $COMPOSER_PHAR ]; then
+   php -r "readfile('https://getcomposer.org/installer');" | php
+fi
+
+export SYMFONY_ENV=${1-dev} && php -d memory_limit=-1 ./composer.phar install
